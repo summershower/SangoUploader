@@ -30,7 +30,7 @@ export default function FileItem({ url, state, file, index, time, setFilesList }
                         <div>{url} </div>
                         <div className="text-xs text-gray-400 mt-2">上传时间：{dayjs(time).format('YYYY-MM-DD HH:mm:ss')} ({dayjs(time).fromNow()})</div>
                     </div>
-                    <div className="absolute right-4 top-4 rounded-full bg-gray-400 transition-all w-6 h-6 text-white flex justify-center items-center hover:bg-gray-500">X</div>
+                    {/* <div className="absolute right-4 top-4 rounded-full bg-gray-400 transition-all w-6 h-6 text-white flex justify-center items-center hover:bg-gray-500">X</div> */}
                 </div>
             ) :
             (<div className="flipAnimation flex p-3 mt-6 bg-red-100 rounded-xl hover:bg-gray-300 transition-all cursor-pointer" style={animationDelay()}>
