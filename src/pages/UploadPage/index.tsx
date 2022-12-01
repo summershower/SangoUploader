@@ -55,33 +55,57 @@ export default function Upload() {
         }
     }
 
-    const [isUploading, setIsUploading] = useState(false); // 上传状态标记
+    const [isUploading, setIsUploading] = useState<boolean>(false); // 上传状态标记
     const [filesList, setFilesList] = useState<FileItemType[]>([]); // 文件列表
     const [uploadPercentage, setUploadPercentage] = useState(0);
+    const [messageApi, contextHolder] = message.useMessage();
+    const isUploadingRef = useRef(isUploading);
+    useEffect(() => {
+        isUploadingRef.current = isUploading;
+    }, [isUploading])
+
+    useEffect(() => {
+        console.log(isUploading);
+    })
     // 选择文件完毕，开始上传
     function handleUploadEvent(e: any) {
+        setIsUploading(true);
+
         const promises: (() => Promise<any>)[] = [];
         for (let i = 0; i < e.target.files.length; i++) {
             promises.push(() => uploadToOSS(e.target.files[i], Math.floor(Math.random() * 10000000000000000), uploadDirectory));
         }
-        setIsUploading(true);
         const PP = new PromisePool(promises, 10, (state: string, processing: number, rest: number, failed: number, total: number) => {
-            setUploadPercentage(Math.floor((total - rest) / total * 100));
-            if (state === 'FAILED' || 'SUCCESS') {
+            setUploadPercentage(Math.floor((total - rest - processing) / total * 100));
+            if ((state === 'FAILED' || state === 'SUCCESS') && isUploadingRef) {
+                console.log(state, processing, rest, failed, total);
+                if (failed === 0) {
+                    messageApi.open({
+                        type: 'success',
+                        content: `成功上传${total}个文件`,
+                    });
+                } else if (total > failed) {
+                    messageApi.open({
+                        type: 'warning',
+                        content: `成功上传${total - failed}个文件，失败${failed}个`,
+                    });
+                } else {
+                    messageApi.open({
+                        type: 'error',
+                        content: `${failed}个文件上传失败`,
+                    });
+                }
                 setIsUploading(false);
             }
 
         });
-        setTimeout(()=>{
         PP.start();
 
-        }, 2000)
     }
 
     const filesListRef = useRef(filesList);
     useEffect(() => {
         filesListRef.current = filesList;
-        
     }, [filesList])
 
     // 上传到OSS
@@ -100,6 +124,7 @@ export default function Upload() {
                 time: +new Date(),
                 id: id,
                 file: file,
+                size: file.size,
                 state: 'PENDING',
                 directory: directory
             };
@@ -129,19 +154,12 @@ export default function Upload() {
 
         } catch (e: any) {
             // 更改对应UI状态
-            let files: FileItemType[] = filesList;
+            let files: FileItemType[] = [...filesListRef.current];
 
-            const targetFile = files.find(v => v.id === id) || {
-                time: +new Date(),
-                id: id,
-                file: file,
-                state: 'FAILED',
-                directory: directory
-            };
+            const targetFile = files.find(v => v.id === id);
             (targetFile as FileItemType).state = 'FAILED';
-            setFilesList([
-                ...files
-            ])
+
+            setFilesList(files)
             throw new Error(e);
         }
     }
@@ -179,25 +197,26 @@ export default function Upload() {
                 {
 
                     !isUploading ?
-                        (<div className="flex mt-10 mr-8 items-center justify-center bg-green-500 w-32 h-32 rounded-full cursor-pointer text-white shadow-xl text-xl transition-all hover:bg-green-600" onClick={handleClickBtn}>
+                        (<div className={`flex mt-10 mr-8 items-center justify-center bg-green-500 w-32 h-32 rounded-full cursor-pointer text-white shadow-xl text-xl transition-all hover:bg-green-600 ${initState !== 'FINISHED' && 'hidden'}`} onClick={handleClickBtn}>
                             立即上传
                         </div>) :
                         (<Progress className="mt-10 mr-8 w-32 h-32" type="circle" percent={uploadPercentage} />)
                 }
             </div>
-            <Tags filesList={filesList} activeDirectory={activeDirectory} setActiveDirectory={setActiveDirectory} setPage={setPage} setUploadDirectory={setUploadDirectory}/>
+            <Tags filesList={filesList} activeDirectory={activeDirectory} setActiveDirectory={setActiveDirectory} setPage={setPage} setUploadDirectory={setUploadDirectory} />
             {getCurrentTagFiles().length ? <div className="mt-8  bg-gray-50 p-8 rounded-xl">
                 <h1 className="text-3xl font-bold">文件列表:</h1>
                 <div>
                     {
                         getCurrentTagFiles().slice((page - 1) * pageSize, (page - 1) * pageSize + pageSize).map((v: FileItemType, index) => (
-                            <FileItem key={v.id} file={v.file} url={v.url} state={v.state} index={index} time={v.time} setFilesList={setFilesList} />
+                            <FileItem key={v.id} file={v.file} url={v.url} state={v.state} time={v.time} size={v.size} setFilesList={setFilesList} />
                         ))
                     }
                 </div>
                 <Pagination className='flex justify-center mt-5' current={page} defaultCurrent={1} total={getCurrentTagFiles().length} pageSize={pageSize} onChange={(page, pageSize) => { setPage(page); setPageSize(pageSize) }} />
             </div> : ''}
             <input className="invisible" type="file" onChange={handleUploadEvent} multiple ref={inputRef} />
+            {contextHolder}
         </div>
     )
 }

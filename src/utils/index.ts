@@ -66,6 +66,7 @@ export class PromisePool {
                 this.handleOneTask();
                 this.handleRace(Promise.race(this.processingTasks));
             }
+
         }
         race.then(handler, handler);
     }
@@ -78,7 +79,7 @@ export class PromisePool {
             this.checkFinallyState();
         }, (err) => {
             console.log(err);
-            
+
             const index = this.processingTasks.findIndex(v => v === promise)
             this.processingTasks.splice(index, 1);
             this.failedTasks.push(fn);
@@ -92,14 +93,15 @@ export class PromisePool {
         if (!this.tasks.length && !this.processingTasks.length) {
             // 任务都完成了，检查失败池
             if (this.failedTasks.length) {
-                console.log('Race：有失败任务');
                 this.state = 'FAILED';
             } else {
-                console.log('Race: 任务完成 ');
                 this.state = 'SUCCESS';
             }
+            this.handleCallback();
+        } else {
+            this.handleCallback();
+            
         }
-        this.handleCallback();
     }
     // 状态回调函数
     handleCallback() {
