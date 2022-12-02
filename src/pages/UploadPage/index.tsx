@@ -98,7 +98,9 @@ export default function Upload() {
                         content: `${failed}个文件上传失败`,
                     });
                 }
-                setIsUploading(false);
+                setTimeout(() => {
+                    setIsUploading(false);
+                }, 700)
             }
 
         });
@@ -254,7 +256,7 @@ export default function Upload() {
                 }
                 {
                     !isUploading ? (
-                        <div className={`flipAnimation absolute right-14 bottom-8 text-gray-400 text-sm ${initState!=='FINISHED' && 'hidden'}`}>点击上传或拖曳文件至此</div>
+                        <div className={`flipAnimation absolute right-14 bottom-8 text-gray-400 text-sm ${initState !== 'FINISHED' && 'hidden'}`}>点击上传或拖曳文件至此</div>
                     ) : ''
                 }
                 <div id='dragMask' className='rounded-xl '>放手即可上传</div>
