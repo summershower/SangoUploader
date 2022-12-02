@@ -228,8 +228,6 @@ export default function Upload() {
                 files: e.dataTransfer.files
             }
         });
-
-
     }
     function handleDragLeave(e: any) {
         e.preventDefault();
@@ -241,9 +239,8 @@ export default function Upload() {
         e.stopPropagation();
     }
 
-
     return (
-        <div className="w-3/4 bg-white rounded-xl shadow-lg mt-8 ml-auto mr-auto p-8 ">
+        <div className="w-3/4 bg-white rounded-xl shadow-lg mt-8 ml-auto mr-auto p-8">
             {State()}
             <div className="relative flex mt-8 bg-gray-50 p-8 rounded-xl" id='dragBox'>
                 <Options uploadDirectory={uploadDirectory} setUploadDirectory={setUploadDirectory} isNeedHash={isNeedHash} setIsNeedHash={setIsNeedHash} />
@@ -257,7 +254,7 @@ export default function Upload() {
                 }
                 {
                     !isUploading ? (
-                        <h3 className='absolute right-14 bottom-8 text-gray-400 text-sm'>点击上传或拖曳文件至此</h3>
+                        <div className={`flipAnimation absolute right-14 bottom-8 text-gray-400 text-sm ${initState!=='FINISHED' && 'hidden'}`}>点击上传或拖曳文件至此</div>
                     ) : ''
                 }
                 <div id='dragMask' className='rounded-xl '>放手即可上传</div>

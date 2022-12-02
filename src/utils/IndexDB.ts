@@ -1,6 +1,6 @@
 
 
-const storeName = 'uploadRecords', dbName = 'SangoUploader', version = 1;
+const storeName = 'uploadRecords', dbName = 'SangoUploader', version = 2;
 let db: any = null;
 import type { FileItemType } from "@/pages/UploadPage/types";
 
