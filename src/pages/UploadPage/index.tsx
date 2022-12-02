@@ -37,6 +37,10 @@ export default function Upload() {
     }, [])
 
     const [uploadDirectory, setUploadDirectory] = useState('test');
+    const uploadDirectoryRef = useRef(uploadDirectory);
+    useEffect(() => {
+        uploadDirectoryRef.current = uploadDirectory;
+    }, [uploadDirectory])
     const [isNeedHash, setIsNeedHash] = useState(true);
 
     // 状态组件
@@ -76,7 +80,7 @@ export default function Upload() {
 
         const promises: (() => Promise<any>)[] = [];
         for (let i = 0; i < e.target.files.length; i++) {
-            promises.push(() => uploadToOSS(e.target.files[i], Math.floor(Math.random() * 10000000000000000), uploadDirectory));
+            promises.push(() => uploadToOSS(e.target.files[i], Math.floor(Math.random() * 10000000000000000), uploadDirectoryRef.current));
         }
         const PP = new PromisePool(promises, 10, (state: string, processing: number, rest: number, failed: number, total: number) => {
             setUploadPercentage(Math.floor((total - rest - processing) / total * 100));
@@ -139,7 +143,7 @@ export default function Upload() {
             ])
 
             // 开始上传
-            const res = await ossInstance.put(`/web/${uploadDirectory ? uploadDirectory + '/' : ''}` + filename, file)
+            const res = await ossInstance.put(`/web/${uploadDirectoryRef.current ? uploadDirectoryRef.current + '/' : ''}` + filename, file)
             const url = 'https://cdn.meiqijiacheng.com/' + res.name;
 
             const afterFiles = [...filesListRef.current];
@@ -160,7 +164,7 @@ export default function Upload() {
             setFilesList([
                 ...afterFiles
             ])
-            setActiveDirectory(uploadDirectory);
+            setActiveDirectory(uploadDirectoryRef.current);
 
             // 添加到IndexDB
             addLog(targetFile as FileItemType);
@@ -181,7 +185,7 @@ export default function Upload() {
 
     const inputRef = useRef(null)
     function handleClickBtn() {
-        if (!/^([0-9a-zA-Z]+[/]?[0-9a-zA-Z]+)+$/.test(uploadDirectory) && uploadDirectory !== '') {
+        if (!/^([0-9a-zA-Z]+[/]?[0-9a-zA-Z]+)+$/.test(uploadDirectoryRef.current) && uploadDirectoryRef.current !== '') {
             message.error('路径只能含有英文和数字')
             return
         }
