@@ -13,7 +13,7 @@ export function useDB() {
             if (!db.objectStoreNames.contains(storeName)) {
                 // 创建uploadRecords表格，表格使用自增主键
                 const objectStore = db.createObjectStore(storeName, {
-                    keyPath: 'time'
+                    keyPath: 'id'
                 });
             }
         }
@@ -31,7 +31,7 @@ export function addLog(fileItem: FileItemType): void {
     delete fileItem.file;
     const request = db.transaction(storeName, 'readwrite').objectStore(storeName).add(fileItem)
     request.onsuccess = () => {
-        console.log('写入ed', request.result);
+        console.log('写入', request.result);
     }
     request.onerror = (event) => {
         console.log(event, '写入失败');
@@ -47,11 +47,10 @@ export function readLog() {
 
     })
 }
-export function delLog(fileItem: FileItemType): void {
-    delete fileItem.file;
-    const request = db.transaction(storeName, 'readwrite').objectStore(storeName).delete(fileItem)
+export function delLog(id: number): void {
+    const request = db.transaction(storeName, 'readwrite').objectStore(storeName).delete(id);
     request.onsuccess = () => {
-        console.log('写入ed', request.result);
+        console.log('删除成功', request.result);
     }
     request.onerror = (event) => {
         console.log(event, '删除失败');

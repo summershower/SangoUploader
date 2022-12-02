@@ -28,6 +28,8 @@ export default function Upload() {
         initOSS()
         useDB().then(() => {
             readLog().then((res: any) => {
+                console.log(res,'indexDB');
+                
                 setFilesList(res);
             })
         })
@@ -109,7 +111,7 @@ export default function Upload() {
     }, [filesList])
 
     // 上传到OSS
-    async function uploadToOSS(file: File, id: string | number, directory: string) {
+    async function uploadToOSS(file: File, id: number, directory: string) {
         try {
             // 获取哈希文件名
             let filename
@@ -203,13 +205,13 @@ export default function Upload() {
                         (<Progress className="mt-10 mr-8 w-32 h-32" type="circle" percent={uploadPercentage} />)
                 }
             </div>
-            <Tags filesList={filesList} activeDirectory={activeDirectory} setActiveDirectory={setActiveDirectory} setPage={setPage} setUploadDirectory={setUploadDirectory} />
+            <Tags filesList={filesList} activeDirectory={activeDirectory} setActiveDirectory={setActiveDirectory} setPage={setPage} setUploadDirectory={setUploadDirectory} setFilesList={setFilesList}/>
             {getCurrentTagFiles().length ? <div className="mt-8  bg-gray-50 p-8 rounded-xl">
                 <h1 className="text-3xl font-bold">文件列表:</h1>
                 <div>
                     {
                         getCurrentTagFiles().slice((page - 1) * pageSize, (page - 1) * pageSize + pageSize).map((v: FileItemType, index) => (
-                            <FileItem key={v.id} file={v.file} url={v.url} state={v.state} time={v.time} size={v.size} setFilesList={setFilesList} />
+                            <FileItem key={v.id} file={v.file} url={v.url} state={v.state} time={v.time} size={v.size} id={v.id} setFilesList={setFilesList} />
                         ))
                     }
                 </div>

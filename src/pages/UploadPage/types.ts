@@ -1,6 +1,6 @@
 export interface FileItemType {
     time: number,
-    id: string |number,
+    id: number,
     directory: string,
     size: number,
     url?: string,
