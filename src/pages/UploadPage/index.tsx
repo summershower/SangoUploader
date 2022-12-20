@@ -42,6 +42,10 @@ export default function Upload() {
         uploadDirectoryRef.current = uploadDirectory;
     }, [uploadDirectory])
     const [isNeedHash, setIsNeedHash] = useState(true);
+    const isNeedHashRef = useRef(isNeedHash);
+    useEffect(() => {
+        isNeedHashRef.current = isNeedHash;
+    }, [isNeedHashRef]);
 
     // 状态组件
     const [initState, setInitState] = useState('LOADING')
@@ -122,7 +126,7 @@ export default function Upload() {
         try {
             // 获取哈希文件名
             let filename
-            if (isNeedHash) {
+            if (isNeedHashRef.current) {
                 filename = await getHashName(file);
             } else {
                 filename = file.name
