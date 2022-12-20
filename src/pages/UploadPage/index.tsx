@@ -45,7 +45,7 @@ export default function Upload() {
     const isNeedHashRef = useRef(isNeedHash);
     useEffect(() => {
         isNeedHashRef.current = isNeedHash;
-    }, [isNeedHashRef]);
+    }, [isNeedHash]);
 
     // 状态组件
     const [initState, setInitState] = useState('LOADING')
@@ -75,9 +75,6 @@ export default function Upload() {
         isUploadingRef.current = isUploading;
     }, [isUploading])
 
-    useEffect(() => {
-        console.log(isUploading);
-    })
     // 选择文件完毕，开始上传
     function handleUploadEvent(e: any) {
         setIsUploading(true);
