@@ -29,8 +29,6 @@ export default function Upload() {
         initOSS()
         useDB().then(() => {
             readLog().then((res: any) => {
-                console.log(res, 'indexDB');
-
                 setFilesList(res);
             })
         })
@@ -78,7 +76,6 @@ export default function Upload() {
     // 选择文件完毕，开始上传
     function handleUploadEvent(e: any) {
         setIsUploading(true);
-
         const promises: (() => Promise<any>)[] = [];
         for (let i = 0; i < e.target.files.length; i++) {
             promises.push(() => uploadToOSS(e.target.files[i], Math.floor(Math.random() * 10000000000000000), uploadDirectoryRef.current));
@@ -86,7 +83,7 @@ export default function Upload() {
         const PP = new PromisePool(promises, 10, (state: string, processing: number, rest: number, failed: number, total: number) => {
             setUploadPercentage(Math.floor((total - rest - processing) / total * 100));
             if ((state === 'FAILED' || state === 'SUCCESS') && isUploadingRef) {
-                console.log(state, processing, rest, failed, total);
+                // console.log(state, processing, rest, failed, total);
                 if (failed === 0) {
                     messageApi.open({
                         type: 'success',
@@ -105,6 +102,7 @@ export default function Upload() {
                 }
                 setTimeout(() => {
                     setIsUploading(false);
+                    e.target.value = '';
                 }, 700)
             }
 
@@ -128,7 +126,6 @@ export default function Upload() {
             } else {
                 filename = file.name
             }
-
             // 添加到UI
             const newFileItem: FileItemType = {
                 time: +new Date(),

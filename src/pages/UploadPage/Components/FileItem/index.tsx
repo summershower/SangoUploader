@@ -2,7 +2,7 @@ import ICON_FILE from '@/assets/images/file.png'
 import { handleCopy } from '@/utils';
 import dayjs from 'dayjs';
 import { delLog } from '@/utils/IndexDB';
-import { useRef, useEffect, EventHandler } from 'react';
+import { useRef, useEffect } from 'react';
 import type { FileItemType } from '../../types';
 import type { MouseEvent } from 'react';
 import './index.less'
@@ -46,6 +46,9 @@ export default function FileItem({ url, state, file, time, size, id, setFilesLis
             ) :
             (<div className="file-item flex p-3 mt-6 bg-red-100 rounded-xl hover:bg-gray-300 transition-all cursor-pointer" ref={fileItemRef}>
                 <img className="rounded-xl w-24 h-24 object-cover filter blur-sm " src={/png|jpg|jpeg|png|webp|bmp|svg/i.test(url ?? '') ? URL.createObjectURL(file as File) : ICON_FILE} />
-                <div className="flex-1 flex items-center ml-4 break-all">上传失败</div>
+                <div className='flex-1 flex flex-col justify-center items-start h-24 ml-4 '>
+                        <div>{file?.name || ''} </div>
+                        <div className="text-xs text-gray-400 mt-2">文件大小: {size / 1024 > 1024 ? (size / 1024 / 1024).toFixed(2) + 'Mb' : (size / 1024).toFixed(2) + 'kb'}&nbsp;&nbsp;&nbsp;上传失败，请刷新页面重试</div>
+                    </div>
             </div>)
 }
