@@ -11,7 +11,7 @@ import zh from 'dayjs/locale/zh';
 dayjs.extend(relativeTime).locale(zh);
 
 
-export default function FileItem({ url, state, file, time, size, id, setFilesList }: { url?: string, state: 'SUCCESS' | 'PENDING' | 'FAILED', file?: File, time: number, size: number, id: number, setFilesList: Function }) {
+export default function FileItem({ url, state, file, time, size, id, setFilesList, isCDNAddress }: { url?: string, state: 'SUCCESS' | 'PENDING' | 'FAILED', file?: File, time: number, size: number, id: number, setFilesList: Function, isCDNAddress: boolean }) {
     const fileItemRef = useRef<any>(null);
     useEffect(() => {
         const io = new IntersectionObserver((entries) => {
@@ -35,10 +35,10 @@ export default function FileItem({ url, state, file, time, size, id, setFilesLis
             <div className="flex-1 flex items-center ml-4 break-all">上传中...</div>
         </div>) : state === 'SUCCESS' ?
             (
-                <div className="file-item  relative flex p-3 mt-6 bg-gray-200 rounded-xl hover:bg-gray-300 transition-all cursor-pointer" onClick={() => handleCopy(url ?? '')} ref={fileItemRef}>
+                <div className="file-item  relative flex p-3 mt-6 bg-gray-200 rounded-xl hover:bg-gray-300 transition-all cursor-pointer" onClick={() => handleCopy((isCDNAddress ? url : url?.replace('https://cdn.meiqijiacheng.com/','https://sango-frankfurt.oss-accelerate.aliyuncs.com/')) ?? '')} ref={fileItemRef}>
                     <img className="rounded-xl w-24 h-24 object-cover" src={/png|jpg|jpeg|png|webp|bmp|svg/i.test(url || '') ? url : ICON_FILE} />
                     <div className='flex-1 flex flex-col justify-center items-start h-24 ml-4 '>
-                        <div>{url} </div>
+                        <div>{ isCDNAddress ? url : url?.replace('https://cdn.meiqijiacheng.com/','https://sango-frankfurt.oss-accelerate.aliyuncs.com/')}</div>
                         <div className="text-xs text-gray-400 mt-2">文件大小: {size / 1024 > 1024 ? (size / 1024 / 1024).toFixed(2) + 'Mb' : (size / 1024).toFixed(2) + 'kb'}&nbsp;&nbsp;&nbsp;上传时间：{dayjs(time).format('YYYY-MM-DD HH:mm:ss')} ({dayjs(time).fromNow()})</div>
                     </div>
                     <div className="closeBtn hidden absolute right-3 top-3 text-sm rounded-full bg-gray-400 transition-all w-5 h-5 text-white flex justify-center items-center hover:bg-red-400" onClick={handleDelete}>X</div>
@@ -47,8 +47,8 @@ export default function FileItem({ url, state, file, time, size, id, setFilesLis
             (<div className="file-item flex p-3 mt-6 bg-red-100 rounded-xl hover:bg-gray-300 transition-all cursor-pointer" ref={fileItemRef}>
                 <img className="rounded-xl w-24 h-24 object-cover filter blur-sm " src={/png|jpg|jpeg|png|webp|bmp|svg/i.test(url ?? '') ? URL.createObjectURL(file as File) : ICON_FILE} />
                 <div className='flex-1 flex flex-col justify-center items-start h-24 ml-4 '>
-                        <div>{file?.name || ''} </div>
-                        <div className="text-xs text-gray-400 mt-2">文件大小: {size / 1024 > 1024 ? (size / 1024 / 1024).toFixed(2) + 'Mb' : (size / 1024).toFixed(2) + 'kb'}&nbsp;&nbsp;&nbsp;上传失败，请刷新页面重试</div>
-                    </div>
+                    <div>{file?.name || ''} </div>
+                    <div className="text-xs text-gray-400 mt-2">文件大小: {size / 1024 > 1024 ? (size / 1024 / 1024).toFixed(2) + 'Mb' : (size / 1024).toFixed(2) + 'kb'}&nbsp;&nbsp;&nbsp;上传失败，请刷新页面重试</div>
+                </div>
             </div>)
 }

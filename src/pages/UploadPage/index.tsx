@@ -4,7 +4,7 @@ import FileItem from './Components/FileItem'
 import { OSS } from '@/utils/OSS'
 import { useDB, readLog, addLog, delLog } from '@/utils/IndexDB'
 import type { FileItemType, } from './types'
-import { message, Pagination, Progress } from 'antd'
+import { message, Pagination, Progress, Switch, Popover } from 'antd'
 import { getHashName, PromisePool } from '@/utils'
 import './index.less'
 import Tags from './Components/Tags';
@@ -243,6 +243,16 @@ export default function Upload() {
         e.stopPropagation();
     }
 
+    const [isCDNAddress, setIsCDNAddress] = useState(true);
+    const cdnIntroContent = (
+        <div>
+            <p>对于活动资源等<span className='text-red-400'>会被多人重复访问</span>的资源，请勾选CDN地址。</p>
+            <p>否则请使用源站地址。</p>
+            <p>CDN地址的文件首次访问时需要到源站获取，速度可能较慢，这是正常的。</p>
+            <p>不清楚?那就不用动。</p>
+        </div>
+    )
+
     return (
         <div className="w-3/4 bg-white rounded-xl shadow-lg mt-8 ml-auto mr-auto p-8">
             {State()}
@@ -261,15 +271,20 @@ export default function Upload() {
                         <div className={`flipAnimation absolute right-14 bottom-8 text-gray-400 text-sm ${initState !== 'FINISHED' && 'hidden'}`}>点击上传或拖曳文件至此</div>
                     ) : ''
                 }
-                <div id='dragMask' className='rounded-xl '>放手即可上传</div>
+                <div id='dragMask' className='rounded-xl'>放手即可上传</div>
             </div>
             <Tags filesList={filesList} activeDirectory={activeDirectory} setActiveDirectory={setActiveDirectory} setPage={setPage} setUploadDirectory={setUploadDirectory} setFilesList={setFilesList} />
-            {getCurrentTagFiles().length ? <div className="mt-8  bg-gray-50 p-8 rounded-xl">
-                <h1 className="text-3xl font-bold">文件列表:</h1>
+            {getCurrentTagFiles().length ? <div className="mt-8 bg-gray-50 p-8 rounded-xl">
+                <div className="flex justify-between item-center">
+                    <h1 className="text-3xl font-bold">文件列表:</h1>
+                    <Popover content={cdnIntroContent} title="这是什么玩意儿？">
+                        <Switch className="btn-switch" checkedChildren="CDN" unCheckedChildren="源站" defaultChecked onChange={(value) => setIsCDNAddress(value)} />
+                    </Popover>
+                </div>
                 <div>
                     {
                         getCurrentTagFiles().slice((page - 1) * pageSize, (page - 1) * pageSize + pageSize).map((v: FileItemType) => (
-                            <FileItem key={v.id} file={v.file} url={v.url} state={v.state} time={v.time} size={v.size} id={v.id} setFilesList={setFilesList} />
+                            <FileItem key={v.id} file={v.file} url={v.url} state={v.state} time={v.time} size={v.size} id={v.id} setFilesList={setFilesList} isCDNAddress={isCDNAddress}/>
                         ))
                     }
                 </div>
